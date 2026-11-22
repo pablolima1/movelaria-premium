@@ -65,12 +65,17 @@
         'justify-center'">
         <a href="{{ route('home') }}">
             <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="dark:hidden" src="/images/logo/logo.svg" alt="{{ config('app.name') }}" width="200" height="60" />
+                class="dark:hidden h-[42px] w-[144px] object-contain"
+                src="/images/logo/logo-movelaria-premium-black.png" alt="{{ config('app.name') }}" />
             <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="{{ config('app.name') }}" width="200"
-                height="60" />
+                class="hidden dark:block h-[42px] w-[144px] object-contain"
+                src="/images/logo/logo-movelaria-premium.png" alt="{{ config('app.name') }}" />
             <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
-                src="/images/logo/logo-icon.svg" alt="{{ config('app.name') }}" width="48" height="48" />
+                class="dark:hidden h-10 w-10 object-contain"
+                src="/images/logo/logo-movelaria-premium-black.png" alt="{{ config('app.name') }}" />
+            <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
+                class="hidden dark:block h-10 w-10 object-contain"
+                src="/images/logo/logo-movelaria-premium.png" alt="{{ config('app.name') }}" />
             <!-- <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                 class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" width="150" height="40" />
             <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"

@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Cliente extends Model
+{
+    protected $table = 'clientes';
+
+    protected $fillable = [
+        'nome',
+        'cpf_cnpj',
+        'telefone',
+        'email',
+        'endereco',
+        'observacoes',
+    ];
+
+    public function projetos(): HasMany
+    {
+        return $this->hasMany(Projeto::class, 'cliente_id');
+    }
+}

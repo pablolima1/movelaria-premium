@@ -119,7 +119,8 @@
                     <x-common.common-grid-shape />
                     <div class="flex max-w-xs flex-col items-center">
                         <a href="/" class="mb-4 block">
-                            <img src="{{ asset('images/logo/auth-logo.svg') }}" alt="{{ config('app.name') }}" />
+                            <img src="{{ asset('images/logo/logo-movelaria-premium-black.png') }}" alt="{{ config('app.name') }}" class="h-32 w-32 object-contain dark:hidden" />
+                            <img src="{{ asset('images/logo/logo-movelaria-premium.png') }}" alt="{{ config('app.name') }}" class="hidden h-32 w-32 object-contain dark:block" />
                         </a>
                         <p class="text-center text-gray-400 dark:text-white/60">
                             {{ config('app.name') }}

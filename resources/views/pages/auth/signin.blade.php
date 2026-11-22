@@ -7,7 +7,8 @@
             <div class="flex w-full flex-1 flex-col lg:w-1/2">
                 <div class="mx-auto w-full max-w-md pt-10">
                     <a href="{{ route('login') }}" class="inline-flex items-center">
-                        <img src="{{ asset('images/logo/auth-logo.svg') }}" alt="{{ config('app.name') }}" class="h-10 w-auto" />
+                        <img src="{{ asset('images/logo/logo-movelaria-premium-black.png') }}" alt="{{ config('app.name') }}" class="h-16 w-auto object-contain dark:hidden" />
+                        <img src="{{ asset('images/logo/logo-movelaria-premium.png') }}" alt="{{ config('app.name') }}" class="hidden h-16 w-auto object-contain dark:block" />
                     </a>
                 </div>
                 <div class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
@@ -121,7 +122,8 @@
                     <x-common.common-grid-shape />
                     <div class="flex max-w-xs flex-col items-center">
                         <a href="/" class="mb-4 block">
-                            <img src="{{ asset('images/logo/auth-logo.svg') }}" alt="{{ config('app.name') }}" />
+                            <img src="{{ asset('images/logo/logo-movelaria-premium-black.png') }}" alt="{{ config('app.name') }}" class="h-32 w-32 object-contain dark:hidden" />
+                            <img src="{{ asset('images/logo/logo-movelaria-premium.png') }}" alt="{{ config('app.name') }}" class="hidden h-32 w-32 object-contain dark:block" />
                         </a>
                         <p class="text-center text-gray-400 dark:text-white/60">
                             {{ config('app.name') }}
