@@ -36,4 +36,19 @@ class AliquotaImposto extends Model
             })
             ->orderByDesc('vigente_desde');
     }
+
+    public function situacao(?string $data = null): string
+    {
+        $data ??= now()->toDateString();
+
+        if ($this->vigente_desde->toDateString() > $data) {
+            return 'futura';
+        }
+
+        if ($this->vigente_ate && $this->vigente_ate->toDateString() < $data) {
+            return 'encerrada';
+        }
+
+        return 'vigente';
+    }
 }
