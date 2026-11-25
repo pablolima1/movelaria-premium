@@ -23,7 +23,7 @@ test('guests cannot access the home page', function () {
         ->assertRedirect('/login');
 });
 
-test('a user can log in and see the starter home page', function () {
+test('a user can log in and see the home dashboard', function () {
     $user = User::factory()->create([
         'password' => 'password',
     ]);
@@ -38,6 +38,6 @@ test('a user can log in and see the starter home page', function () {
 
     $this->get('/home')
         ->assertOk()
-        ->assertSee('Seu novo projeto')
+        ->assertSee('Resumo de '.now()->year)
         ->assertSee($user->name);
 });

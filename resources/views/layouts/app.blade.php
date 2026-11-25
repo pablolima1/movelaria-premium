@@ -127,10 +127,12 @@
             <!-- app header start -->
             @include('layouts.app-header')
             <!-- app header end -->
-            <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+            <div class="p-4 pb-28 mx-auto max-w-(--breakpoint-2xl) md:p-6 md:pb-28 xl:pb-6">
                 @yield('content')
             </div>
         </div>
+
+        @include('layouts.bottom-nav')
 
     </div>
 
