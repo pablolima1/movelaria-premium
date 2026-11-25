@@ -30,4 +30,26 @@ class Formatter
     {
         return number_format((float) $value, 2, ',', '.') . '%';
     }
+
+    /**
+     * Valor para preencher um input com máscara $money pt-BR ("1.234,56").
+     * Mantém o texto original se não for numérico (ex.: old() inválido).
+     */
+    public static function moneyInput(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        return is_numeric($value) ? number_format((float) $value, 2, ',', '.') : (string) $value;
+    }
+
+    public static function date(mixed $value): string
+    {
+        if (! $value) {
+            return '—';
+        }
+
+        return ($value instanceof \DateTimeInterface ? $value : \Carbon\Carbon::parse($value))->format('d/m/Y');
+    }
 }

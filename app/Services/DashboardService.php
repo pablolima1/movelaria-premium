@@ -5,18 +5,14 @@ namespace App\Services;
 use App\Models\Projeto;
 use App\Repositories\DashboardRepository;
 use Carbon\CarbonImmutable;
-use Carbon\CarbonInterface;
-use Illuminate\Support\Collection;
 
 class DashboardService
 {
-    private ?Collection $aliquotas = null;
-
-    /** @var array<int, float|null> */
-    private array $aliquotaPorProjeto = [];
-
-    public function __construct(private readonly DashboardRepository $repository)
-    {
+    public function __construct(
+        private readonly DashboardRepository $repository,
+        private readonly AliquotaResolver $aliquotas,
+        private readonly ProjetoFinanceiro $financeiro,
+    ) {
     }
 
     /**
@@ -36,7 +32,7 @@ class DashboardService
         foreach ($this->repository->recebimentosEntre($inicioAno, $fimAno) as $recebimento) {
             $m = $recebimento->data_recebimento->month;
             $centavos = $this->toCents($recebimento->valor);
-            $aliquota = $this->aliquotaDoProjeto($recebimento->projeto) ?? 0.0;
+            $aliquota = $this->aliquotas->paraProjeto($recebimento->projeto) ?? 0.0;
 
             $meses[$m]['entrou'] += $centavos;
             $meses[$m]['imposto'] += (int) round($centavos * $aliquota / 100);
@@ -68,29 +64,14 @@ class DashboardService
     {
         return $this->repository
             ->projetosComRecebimentoEntre($mes->startOfMonth(), $mes->endOfMonth())
-            ->map(function (Projeto $projeto) {
-                $aliquota = $this->aliquotaDoProjeto($projeto);
-                $total = $this->toCents($projeto->valor_final);
-                $recebido = $this->toCents($projeto->recebido_total);
-                $material = $this->toCents($projeto->material_total);
-                $imposto = (int) round($total * ($aliquota ?? 0) / 100);
-
-                return [
-                    'id' => $projeto->id,
-                    'nome' => $projeto->nome,
-                    'cliente' => $projeto->cliente?->nome,
-                    'tipo' => $projeto->tipoProjeto?->nome,
-                    'status' => $projeto->status,
-                    'aliquota' => $aliquota,
-                    'valor_total' => $total / 100,
-                    'recebido_total' => $recebido / 100,
-                    'recebido_mes' => $this->toCents($projeto->recebido_periodo) / 100,
-                    'material' => $material / 100,
-                    'imposto' => $imposto / 100,
-                    'lucro_liquido' => ($total - $material - $imposto) / 100,
-                    'progresso' => $total > 0 ? min(100, (int) round($recebido / $total * 100)) : null,
-                ];
-            })
+            ->map(fn (Projeto $projeto) => [
+                'id' => $projeto->id,
+                'nome' => $projeto->nome,
+                'cliente' => $projeto->cliente?->nome,
+                'tipo' => $projeto->tipoProjeto?->nome,
+                'status' => $projeto->status,
+                'recebido_mes' => $this->toCents($projeto->recebido_periodo) / 100,
+            ] + $this->financeiro->resumo($projeto))
             ->all();
     }
 
@@ -107,34 +88,8 @@ class DashboardService
         ];
     }
 
-    /**
-     * Alíquota vigente na data do projeto (data_inicio, ou data de cadastro).
-     * Mesma regra do scope AliquotaImposto::vigenteEm, resolvida em memória.
-     */
-    private function aliquotaDoProjeto(?Projeto $projeto): ?float
-    {
-        if (! $projeto) {
-            return null;
-        }
-
-        if (array_key_exists($projeto->id, $this->aliquotaPorProjeto)) {
-            return $this->aliquotaPorProjeto[$projeto->id];
-        }
-
-        $this->aliquotas ??= $this->repository->aliquotas()->toBase();
-
-        /** @var CarbonInterface|null $dataBase */
-        $dataBase = $projeto->data_inicio ?? $projeto->created_at;
-        $data = ($dataBase ?? now())->toDateString();
-
-        $aliquota = $this->aliquotas->first(fn ($a) => $a->vigente_desde->toDateString() <= $data
-            && ($a->vigente_ate === null || $a->vigente_ate->toDateString() >= $data));
-
-        return $this->aliquotaPorProjeto[$projeto->id] = $aliquota ? (float) $aliquota->percentual : null;
-    }
-
     private function toCents(mixed $valor): int
     {
-        return (int) round(((float) ($valor ?? 0)) * 100);
+        return ProjetoFinanceiro::cents($valor);
     }
 }

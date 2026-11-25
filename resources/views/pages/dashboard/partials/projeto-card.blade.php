@@ -2,14 +2,14 @@
 
 @php
     $negativo = $projeto['lucro_liquido'] < 0;
-    $statusLabel = $projeto['status'] ? ucfirst(str_replace('_', ' ', $projeto['status'])) : null;
+    $statusLabel = $projeto['status'] ? (\App\Enums\StatusProjeto::tryFrom($projeto['status'])?->label() ?? ucfirst(str_replace('_', ' ', $projeto['status']))) : null;
 @endphp
 
 <article class="flex flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
     <header class="flex items-start justify-between gap-3">
         <div class="min-w-0">
             <h3 class="truncate text-base font-semibold text-gray-800 dark:text-white/90" title="{{ $projeto['nome'] }}">
-                {{ $projeto['nome'] }}
+                <a href="{{ route('projetos.show', $projeto['id']) }}" class="hover:text-brand-600 dark:hover:text-brand-400">{{ $projeto['nome'] }}</a>
             </h3>
             <p class="mt-0.5 truncate text-sm text-gray-500 dark:text-gray-400">{{ $projeto['cliente'] ?? '—' }}</p>
         </div>

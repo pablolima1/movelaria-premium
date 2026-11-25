@@ -2,12 +2,15 @@
 
 namespace App\Http\Requests\AliquotaImposto;
 
+use App\Http\Requests\Concerns\NormalizesMoney;
 use App\Models\AliquotaImposto;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
 class StoreAliquotaImpostoRequest extends FormRequest
 {
+    use NormalizesMoney;
+
     public function authorize(): bool
     {
         return true;
@@ -98,12 +101,6 @@ class StoreAliquotaImpostoRequest extends FormRequest
             return null;
         }
 
-        $value = trim((string) $value);
-
-        if (str_contains($value, ',')) {
-            $value = str_replace(['.', ','], ['', '.'], $value);
-        }
-
-        return $value;
+        return $this->normalizeMoney($value);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Recebimento extends Model
 {
@@ -28,5 +29,10 @@ class Recebimento extends Model
     public function projeto(): BelongsTo
     {
         return $this->belongsTo(Projeto::class, 'projeto_id');
+    }
+
+    public function parcela(): HasOne
+    {
+        return $this->hasOne(Parcela::class, 'recebimento_id');
     }
 }

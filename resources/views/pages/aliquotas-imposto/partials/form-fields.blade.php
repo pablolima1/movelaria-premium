@@ -30,13 +30,7 @@
         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
             Vigente desde <span class="text-error-500">*</span>
         </label>
-        <input
-            type="date"
-            name="vigente_desde"
-            x-model="aliquota.vigente_desde"
-            class="{{ $inputClass }} dark:[color-scheme:dark]"
-            required
-        />
+        <x-form.data name="vigente_desde" model="aliquota.vigente_desde" :required="true" />
         @if($modalError && $errors->has('vigente_desde'))
             <p class="mt-1 text-theme-xs text-error-500">{{ $errors->first('vigente_desde') }}</p>
         @endif
@@ -46,13 +40,7 @@
         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
             Vigente até
         </label>
-        <input
-            type="date"
-            name="vigente_ate"
-            x-model="aliquota.vigente_ate"
-            :min="aliquota.vigente_desde"
-            class="{{ $inputClass }} dark:[color-scheme:dark]"
-        />
+        <x-form.data name="vigente_ate" model="aliquota.vigente_ate" min="aliquota.vigente_desde" />
         <p class="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">Deixe em branco para vigência sem data final.</p>
         @if($modalError && $errors->has('vigente_ate'))
             <p class="mt-1 text-theme-xs text-error-500">{{ $errors->first('vigente_ate') }}</p>

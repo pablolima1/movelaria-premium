@@ -874,3 +874,8 @@ pre[class*='language-'] {
         fill: none !important;
     }
 }
+
+/* Calendário acima dos modais (z-99999) */
+.flatpickr-calendar.open {
+  z-index: 100000 !important;
+}

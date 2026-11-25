@@ -74,7 +74,7 @@ class DemoFinanceiroSeeder extends Seeder
                     Recebimento::create([
                         'projeto_id' => $projeto->id,
                         'valor' => round($valor * $fracao, 2),
-                        'forma_pagamento' => mt_rand(0, 1) ? 'pix' : 'cartao',
+                        'forma_pagamento' => mt_rand(0, 1) ? 'pix' : 'cartao_credito',
                         'data_recebimento' => $data,
                         'observacoes' => self::MARCA,
                     ]);
