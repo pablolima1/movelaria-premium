@@ -9,6 +9,7 @@ use App\Models\TipoProjeto;
 use App\Services\ProjetoFinanceiro;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class ProjetoRepository
@@ -34,6 +35,8 @@ class ProjetoRepository
             $query->where('tipo_projeto_id', (int) $filters['tipo']);
         }
 
+        $this->aplicarPeriodo($query, $filters);
+
         // Agendados: os próximos a serem produzidos primeiro.
         $proximosPrimeiro = ($filters['status'] ?? '') === StatusProjeto::Agendado->value;
 
@@ -43,6 +46,54 @@ class ProjetoRepository
             ->orderByDesc('id')
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    /**
+     * Filtra pelo ano/mês da data de início. Projetos ainda sem data de início
+     * (ex.: orçamentos) usam a data de cadastro como referência.
+     */
+    private function aplicarPeriodo(Builder $query, array $filters): void
+    {
+        $ano = (int) ($filters['ano'] ?? 0);
+        if ($ano <= 0) {
+            return;
+        }
+
+        $mes = (int) ($filters['mes'] ?? 0);
+        $porMes = $mes >= 1 && $mes <= 12;
+        $inicio = Carbon::create($ano, $porMes ? $mes : 1, 1)->startOfDay();
+        // Limite superior exclusivo: funciona igual para colunas date e datetime.
+        $fim = $porMes ? $inicio->copy()->addMonth() : $inicio->copy()->addYear();
+
+        $query->where(function (Builder $q) use ($inicio, $fim) {
+            $q->where(fn (Builder $comData) => $comData
+                ->where('data_inicio', '>=', $inicio->toDateString())
+                ->where('data_inicio', '<', $fim->toDateString()))
+                ->orWhere(fn (Builder $semData) => $semData
+                    ->whereNull('data_inicio')
+                    ->where('created_at', '>=', $inicio)
+                    ->where('created_at', '<', $fim));
+        });
+    }
+
+    /**
+     * Anos disponíveis no filtro: do primeiro projeto até o mais distante (incluindo o ano atual).
+     */
+    public function anosOptions(): array
+    {
+        $atual = (int) now()->year;
+        $minInicio = Projeto::query()->min('data_inicio');
+        $maxInicio = Projeto::query()->max('data_inicio');
+        $minCadastro = Projeto::query()->min('created_at');
+
+        $anos = array_filter([
+            $atual,
+            $minInicio ? Carbon::parse($minInicio)->year : null,
+            $maxInicio ? Carbon::parse($maxInicio)->year : null,
+            $minCadastro ? Carbon::parse($minCadastro)->year : null,
+        ]);
+
+        return range(max($anos), min($anos));
     }
 
     public function loadDetalhe(Projeto $projeto): Projeto

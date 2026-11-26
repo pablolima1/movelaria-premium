@@ -53,8 +53,8 @@
         <label class="{{ $labelClass }}">Valor total do projeto</label>
         <div class="relative">
             <span class="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400">R$</span>
-            <input type="text" name="valor_final" inputmode="decimal" x-model="form.valor_final"
-                x-mask:dynamic="$money($input, ',', '.', 2)" placeholder="0,00" class="{{ $inputClass }} pl-11" />
+            <input type="text" name="valor_final" inputmode="numeric" x-model="form.valor_final"
+                x-money placeholder="0,00" class="{{ $inputClass }} pl-11" />
         </div>
         <p class="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">O imposto é calculado sobre este valor.</p>
         @include('pages.projetos.partials.field-error', ['field' => 'valor_final'])

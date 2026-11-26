@@ -12,9 +12,9 @@
             <input
                 type="text"
                 name="percentual"
-                inputmode="decimal"
+                inputmode="numeric"
                 x-model="aliquota.percentual"
-                x-mask:dynamic="$money($input, ',', '.', 2)"
+                x-money
                 placeholder="0,00"
                 class="{{ $inputClass }} pr-11"
                 required

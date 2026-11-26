@@ -9,8 +9,8 @@
         <label class="{{ $labelClass }}">Valor recebido <span class="text-error-500">*</span></label>
         <div class="relative">
             <span class="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400">R$</span>
-            <input type="text" name="valor" inputmode="decimal" x-model="form.valor"
-                x-mask:dynamic="$money($input, ',', '.', 2)" placeholder="0,00" class="{{ $inputClass }} pl-11 text-base font-semibold" required />
+            <input type="text" name="valor" inputmode="numeric" x-model="form.valor"
+                x-money placeholder="0,00" class="{{ $inputClass }} pl-11 text-base font-semibold" required />
         </div>
         @isset($saldo)
             @if (! is_null($saldo))

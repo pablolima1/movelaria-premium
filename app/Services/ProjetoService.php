@@ -43,6 +43,11 @@ class ProjetoService
         ];
     }
 
+    public function anosOptions(): array
+    {
+        return $this->repository->anosOptions();
+    }
+
     public function create(array $data): Projeto
     {
         return DB::transaction(function () use ($data) {

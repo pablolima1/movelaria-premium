@@ -2,7 +2,14 @@
 
 @section('content')
     @php
-        $filtroAtivo = collect($filters)->filter(fn ($v) => $v !== '')->isNotEmpty();
+        // O ano atual é o padrão, então só conta como filtro quando foi alterado.
+        $filtroAtivo = collect($filters)
+            ->filter(fn ($v, $k) => $k === 'ano' ? $v !== $anoPadrao : $v !== '')
+            ->isNotEmpty();
+        $meses = [1 => 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        $periodoLabel = $filters['ano'] === 'todos'
+            ? 'Todos os períodos'
+            : trim((($filters['mes'] !== '' && isset($meses[(int) $filters['mes']])) ? $meses[(int) $filters['mes']] . ' de ' : '') . $filters['ano']);
         $inputClass = 'dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30';
     @endphp
 
@@ -17,6 +24,9 @@
                     <h3 class="text-base font-medium text-gray-800 dark:text-white/90">Seus projetos</h3>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         Toque em um projeto para ver os números e lançar recebimentos e despesas.
+                    </p>
+                    <p class="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+                        Início em: {{ $periodoLabel }}
                     </p>
                 </div>
 
@@ -52,7 +62,25 @@
                         </button>
                     </div>
 
-                    <div x-show="filtros" x-cloak class="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:items-end">
+                    <div x-show="filtros" x-cloak class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
+                        <div>
+                            <label for="ano" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Ano de início</label>
+                            <select id="ano" name="ano" class="{{ $inputClass }}">
+                                @foreach ($anos as $ano)
+                                    <option value="{{ $ano }}" @selected($filters['ano'] === (string) $ano)>{{ $ano }}</option>
+                                @endforeach
+                                <option value="todos" @selected($filters['ano'] === 'todos')>Todos os anos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="mes" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Mês de início</label>
+                            <select id="mes" name="mes" class="{{ $inputClass }}">
+                                <option value="">Todos</option>
+                                @foreach ($meses as $num => $nome)
+                                    <option value="{{ $num }}" @selected($filters['mes'] === (string) $num)>{{ $nome }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div>
                             <label for="status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Situação</label>
                             <select id="status" name="status" class="{{ $inputClass }}">

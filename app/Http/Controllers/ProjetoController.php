@@ -23,11 +23,16 @@ class ProjetoController extends Controller
             'q' => $request->string('q')->toString(),
             'status' => $request->string('status')->toString(),
             'tipo' => $request->string('tipo')->toString(),
+            // Padrão: ano atual. "todos" remove o filtro de período.
+            'ano' => $request->string('ano', (string) now()->year)->toString(),
+            'mes' => $request->string('mes')->toString(),
         ];
 
         return view('pages.projetos.index', [
             'projetos' => $this->service->list($filters),
             'filters' => $filters,
+            'anos' => $this->service->anosOptions(),
+            'anoPadrao' => (string) now()->year,
             ...$this->service->formOptions(),
         ]);
     }
@@ -65,7 +70,7 @@ class ProjetoController extends Controller
         }
 
         return redirect()
-            ->route('projetos.index', $request->only('q', 'status', 'tipo'))
+            ->route('projetos.index', $request->only('q', 'status', 'tipo', 'ano', 'mes'))
             ->with('success', 'Projeto excluído com sucesso.');
     }
 }

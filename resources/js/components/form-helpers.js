@@ -72,27 +72,51 @@ export function registerDatepicker(Alpine) {
 }
 
 /**
- * Campos com máscara $money: ao sair do campo completa os centavos
- * ("20.000" -> "20.000,00"), deixando claro o valor que será salvo.
+ * Formata dígitos como moeda pt-BR preenchendo da direita (centavos primeiro):
+ * "2" -> "0,02", "2000" -> "20,00", "200000" -> "2.000,00".
  */
-export function registerMoneyBlur() {
-    document.addEventListener('blur', (event) => {
-        const el = event.target;
-        if (!(el instanceof HTMLInputElement) || !(el.getAttribute('x-mask:dynamic') || '').includes('$money')) {
-            return;
-        }
+export function formatMoney(value) {
+    const digits = String(value ?? '').replace(/\D/g, '').replace(/^0+/, '');
+    if (digits === '') {
+        return '';
+    }
 
-        const value = el.value.trim();
-        if (value === '') {
-            return;
-        }
+    const padded = digits.padStart(3, '0');
+    const inteiro = padded.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-        const [inteiro, decimal = ''] = value.split(',');
-        const padded = `${inteiro || '0'},${(decimal + '00').slice(0, 2)}`;
+    return `${inteiro},${padded.slice(-2)}`;
+}
 
-        if (padded !== value) {
-            el.value = padded;
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    }, true);
+/**
+ * x-money: máscara de valor em R$ (estilo caixa registradora). Cada dígito
+ * digitado entra pela direita: 20,00 -> 200,00 -> 2.000,00. Funciona junto
+ * com x-model; valores vindos do modelo já formatados ("1.234,56") são mantidos.
+ */
+export function registerMoney(Alpine) {
+    Alpine.directive('money', (el, _directive, { effect, cleanup }) => {
+        const apply = () => {
+            const formatted = formatMoney(el.value);
+            if (formatted !== el.value) {
+                el.value = formatted;
+            }
+            // Cursor sempre no fim: os dígitos entram pela direita.
+            if (document.activeElement === el) {
+                const end = el.value.length;
+                el.setSelectionRange(end, end);
+            }
+        };
+
+        // Captura: roda antes do listener do x-model, que então lê o valor formatado.
+        el.addEventListener('input', apply, true);
+        cleanup(() => el.removeEventListener('input', apply, true));
+
+        // Modelo -> campo (ex.: modal de edição, botão "Saldo a receber").
+        effect(() => {
+            const value = el._x_model ? el._x_model.get() : el.value;
+            const formatted = formatMoney(value);
+            if ((value ?? '') !== formatted && el._x_model) {
+                el._x_model.set(formatted);
+            }
+        });
+    });
 }

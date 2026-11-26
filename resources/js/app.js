@@ -9,7 +9,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 import { Calendar } from '@fullcalendar/core';
 
 import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect/index';
-import { registerDatepicker, registerMoneyBlur } from './components/form-helpers';
+import { registerDatepicker, registerMoney } from './components/form-helpers';
 import 'flatpickr/dist/plugins/monthSelect/style.css';
 
 
@@ -22,7 +22,7 @@ window.monthSelectPlugin = monthSelectPlugin;
 
 Alpine.plugin(mask);
 registerDatepicker(Alpine);
-registerMoneyBlur();
+registerMoney(Alpine);
 
 Alpine.start();
 

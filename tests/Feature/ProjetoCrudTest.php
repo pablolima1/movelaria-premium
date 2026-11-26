@@ -103,12 +103,46 @@ class ProjetoCrudTest extends TestCase
         $this->projeto(['nome' => 'Depois', 'status' => 'agendado', 'data_inicio' => '2026-12-20', 'data_conclusao' => '2027-01-10']);
         $this->projeto(['nome' => 'Antes', 'status' => 'agendado', 'data_inicio' => '2026-12-05']);
 
-        $this->get('/projetos?status=agendado')
+        $this->get('/projetos?status=agendado&ano=2026')
             ->assertOk()
             ->assertSee('Agendado')
             ->assertSee('20/12/2026')
             ->assertSee('10/01/2027')
             ->assertSeeInOrder(['Antes', 'Depois']);
+    }
+
+    public function test_listagem_filtra_pelo_ano_atual_por_padrao(): void
+    {
+        $this->travelTo('2026-11-26 10:00:00');
+
+        $this->projeto(['nome' => 'Projeto Deste Ano', 'data_inicio' => '2026-03-10']);
+        $this->projeto(['nome' => 'Projeto Ano Passado', 'data_inicio' => '2025-08-01']);
+        $this->projeto(['nome' => 'Orcamento Sem Data', 'status' => 'orcamento']); // cadastrado em 2026
+
+        $this->assertListagem('/projetos', ['Projeto Deste Ano', 'Orcamento Sem Data']);
+        $this->assertListagem('/projetos?ano=2025', ['Projeto Ano Passado']);
+        $this->assertListagem('/projetos?ano=todos', ['Projeto Deste Ano', 'Projeto Ano Passado', 'Orcamento Sem Data']);
+    }
+
+    public function test_listagem_filtra_por_mes_da_data_de_inicio(): void
+    {
+        $this->travelTo('2026-11-26 10:00:00');
+
+        $this->projeto(['nome' => 'Projeto Marco', 'data_inicio' => '2026-03-31']);
+        $this->projeto(['nome' => 'Projeto Abril', 'data_inicio' => '2026-04-01']);
+
+        $this->assertListagem('/projetos?ano=2026&mes=3', ['Projeto Marco']);
+        $this->assertListagem('/projetos?ano=2026&mes=4', ['Projeto Abril']);
+    }
+
+    private function assertListagem(string $url, array $esperados): void
+    {
+        $this->get($url)->assertOk()->assertViewHas('projetos', function ($projetos) use ($esperados) {
+            $nomes = collect($projetos->items())->pluck('nome')->sort()->values()->all();
+            sort($esperados);
+
+            return $nomes === $esperados;
+        });
     }
 
     public function test_validacoes_do_projeto(): void
